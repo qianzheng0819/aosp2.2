@@ -675,7 +675,9 @@ jint android_os_Debug_getDeathObjectCount(JNIEnv* env, jobject clazz)
 
 static jobject android_os_BinderInternal_getContextObject(JNIEnv* env, jobject clazz)
 {
+	// ProcessState::self()->getContextObject()等价于 new BpBinder(0)
     sp<IBinder> b = ProcessState::self()->getContextObject(NULL);
+	
     return javaObjectForIBinder(env, b);
 }
 
