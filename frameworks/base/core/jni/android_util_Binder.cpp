@@ -432,7 +432,7 @@ jobject javaObjectForIBinder(JNIEnv* env, const sp<IBinder>& val)
     object = env->NewObject(gBinderProxyOffsets.mClass, gBinderProxyOffsets.mConstructor);
     if (object != NULL) {
         LOGV("objectForBinder %p: created new %p!\n", val.get(), object);
-        // The proxy holds a reference to the native object.
+        // The proxy holds a reference to the native object. the val is BpBinder(0)
         env->SetIntField(object, gBinderProxyOffsets.mObject, (int)val.get());
         val->incStrong(object);
 
@@ -440,6 +440,7 @@ jobject javaObjectForIBinder(JNIEnv* env, const sp<IBinder>& val)
         // proxy, so we can retrieve the same proxy if it is still active.
         jobject refObject = env->NewGlobalRef(
                 env->GetObjectField(object, gBinderProxyOffsets.mSelf));
+		// gBinderProxyOffsets引用作为key，refObject作为值
         val->attachObject(&gBinderProxyOffsets, refObject,
                 jnienv_to_javavm(env), proxy_cleanup);
 
@@ -878,6 +879,7 @@ static jboolean android_os_BinderProxy_transact(JNIEnv* env, jobject obj,
         return JNI_FALSE;
     }
 
+	// 在getContextObject方法中，已经给BinderProxy的mObject赋值BpBinder(0),这里把BinderProxy的mObject取出来.
     IBinder* target = (IBinder*)
         env->GetIntField(obj, gBinderProxyOffsets.mObject);
     if (target == NULL) {

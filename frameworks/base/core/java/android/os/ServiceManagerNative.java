@@ -117,6 +117,7 @@ class ServiceManagerProxy implements IServiceManager {
         Parcel reply = Parcel.obtain();
         data.writeInterfaceToken(IServiceManager.descriptor);
         data.writeString(name);
+        // mRemote is BinderProxy, wehich's mObject filed is BpBinder(0)
         mRemote.transact(GET_SERVICE_TRANSACTION, data, reply, 0);
         IBinder binder = reply.readStrongBinder();
         reply.recycle();

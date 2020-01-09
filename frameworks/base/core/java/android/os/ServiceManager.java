@@ -36,7 +36,8 @@ public final class ServiceManager {
         }
 
         // Find the service manager
-        //ServiceManagerNative.asInterface(BinderInternal.getContextObject()) 等价于 ServiceManagerNative.asInterface(new BinderProxy())
+        //ServiceManagerNative.asInterface(BinderInternal.getContextObject())
+        // 等价于 ServiceManagerNative.asInterface(new BinderProxy()), BinderProxy.mObject=BpBinder(0)
         sServiceManager = ServiceManagerNative.asInterface(BinderInternal.getContextObject());
         return sServiceManager;
     }

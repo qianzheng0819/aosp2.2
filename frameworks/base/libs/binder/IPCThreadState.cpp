@@ -495,7 +495,8 @@ status_t IPCThreadState::transact(int32_t handle,
         if (reply) reply->setError(err);
         return (mLastError = err);
     }
-    
+
+	// ServiceManager client, flags=0, TF_ONE_WAY=0
     if ((flags & TF_ONE_WAY) == 0) {
         if (reply) {
             err = waitForResponse(reply);
@@ -703,11 +704,13 @@ finish:
 
 status_t IPCThreadState::talkWithDriver(bool doReceive)
 {
+	// doReceive default value is true
     LOG_ASSERT(mProcess->mDriverFD >= 0, "Binder driver is not opened");
     
     binder_write_read bwr;
     
-    // Is the read buffer empty?
+    // Is the read buffer empty? 如果还在读数据，needread=false
+    // doReceive:the caller has requested to read the next data
     const bool needRead = mIn.dataPosition() >= mIn.dataSize();
     
     // We don't want to write anything if we are still reading
@@ -761,7 +764,12 @@ status_t IPCThreadState::talkWithDriver(bool doReceive)
         IF_LOG_COMMANDS() {
             alog << "Finished read/write, write size = " << mOut.dataSize() << endl;
         }
-    } while (err == -EINTR);
+    } 
+		// Many system calls will report the EINTR error code if a signal occurred while the 
+		// system call was in progress. No error actually occurred, it's just reported that 
+		// way because the system isn't able to resume the system call automatically. This coding 
+		// pattern simply retries the system call when this happens, to ignore the interrupt.
+		while (err == -EINTR); 
     
     IF_LOG_COMMANDS() {
         alog << "Our err: " << (void*)err << ", write consumed: "

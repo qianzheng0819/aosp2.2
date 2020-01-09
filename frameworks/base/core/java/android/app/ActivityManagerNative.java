@@ -75,6 +75,7 @@ public abstract class ActivityManagerNative extends Binder implements IActivityM
             //    "ActivityManager", "returning cur default = " + gDefault);
             return gDefault;
         }
+        // new ServiceManagerProxy(new BinderProxy()).getService("activity")
         IBinder b = ServiceManager.getService("activity");
         if (Config.LOGV) Log.v(
             "ActivityManager", "default service binder = " + b);
